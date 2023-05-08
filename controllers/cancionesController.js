@@ -59,9 +59,11 @@ exports.agregarCancionesDeArtistaAPlaylist = async (req, res) => {
     }
 
     const cancionesPlaylist = canciones.map((cancion) => ({
-      playlist_id: playlistId,
-      cancion_id: parseInt(cancion.id),
+      playlist_id: playlistId.id,
+      cancion_id: cancion.id,
     }));
+
+    console.log(cancionesPlaylist);
 
     await knex("canciones_playlist").insert(cancionesPlaylist);
 

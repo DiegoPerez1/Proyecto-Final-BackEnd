@@ -24,7 +24,7 @@ routes.post("/login", runValidation, loginUsuario);
 
 /*routes.post("/playlists", runValidation, verifyToken, crearPlaylist);*/
 routes.post(
-  "/playlists",
+  "/agregar-canciones",
   runValidation,
   verifyToken,
   agregarCancionesDeArtistaAPlaylist
