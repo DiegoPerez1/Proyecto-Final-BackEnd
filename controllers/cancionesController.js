@@ -29,11 +29,10 @@ exports.mostrarCancionesId = async (req, res) => {
   }
 };
 
-exports.crearPlaylist = async (req, res) => {
+/*exports.crearPlaylist = async (req, res) => {
   const { nombre } = req.body;
 
   try {
-    // Insertamos la nueva playlist en la base de datos
     const playlistId = await knex("playlist").insert({ nombre: nombre });
 
     // Devolvemos la respuesta con el ID de la nueva playlist
@@ -41,28 +40,34 @@ exports.crearPlaylist = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-};
+};*/
 
-exports.agregarCancionAPlaylist = async (req, res) => {
-  const { playlistId, cancionId } = req.params;
+exports.agregarCancionesDeArtistaAPlaylist = async (req, res) => {
+  const { artista, playlist } = req.body;
 
   try {
-    // Verificar si la playlist y la canción existen en la base de datos
-    const playlist = await knex("playlist").where({ id: playlistId }).first();
-    const cancion = await knex("canciones").where({ id: cancionId }).first();
+    const canciones = await knex("canciones").where("artista", "=", artista);
 
-    if (!playlist || !cancion) {
-      res.status(404).json({ error: "La playlist o la canción no existen" });
-      return;
+    let playlistId = await knex("playlist")
+      .where({ nombre: playlist })
+      .select("id")
+      .first();
+
+    if (!playlistId) {
+      const nuevaPlaylist = await knex("playlist").insert({ nombre: playlist });
+      playlistId = nuevaPlaylist[0];
     }
 
-    // Insertar un nuevo registro en la tabla canciones_playlist
-    const resultado = await knex("canciones_playlist").insert({
+    const cancionesPlaylist = canciones.map((cancion) => ({
       playlist_id: playlistId,
-      cancion_id: cancionId,
-    });
+      cancion_id: parseInt(cancion.id),
+    }));
 
-    res.status(200).json({ message: "Canción agregada a la playlist" });
+    await knex("canciones_playlist").insert(cancionesPlaylist);
+
+    res.status(200).json({
+      message: `Canciones de ${artista} agregadas a la playlist ${playlist}`,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

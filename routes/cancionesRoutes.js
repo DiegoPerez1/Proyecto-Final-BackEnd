@@ -5,9 +5,10 @@ const {
   mostrarCancionesId,
   registroUsuario,
   loginUsuario,
-  crearPlaylist,
-  agregarCancionAPlaylist,
+  // crearPlaylist,
+  agregarCancionesDeArtistaAPlaylist,
 } = require("../controllers/cancionesController");
+
 const routes = express.Router();
 
 const { runValidation } = require("../middlewares/validators/index");
@@ -21,12 +22,12 @@ routes.get("/canciones/:id", runValidation, verifyToken, mostrarCancionesId);
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);
 
-routes.post("/playlists", runValidation, verifyToken, crearPlaylist);
+/*routes.post("/playlists", runValidation, verifyToken, crearPlaylist);*/
 routes.post(
-  "/playlists/:playlistId/:cancionId",
+  "/playlists",
   runValidation,
   verifyToken,
-  agregarCancionAPlaylist
+  agregarCancionesDeArtistaAPlaylist
 );
 
 module.exports = routes;
