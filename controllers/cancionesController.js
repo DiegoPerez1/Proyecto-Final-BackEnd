@@ -42,33 +42,39 @@ exports.mostrarCancionesId = async (req, res) => {
   }
 };*/
 
-exports.agregarCancionesDeArtistaAPlaylist = async (req, res) => {
-  const { artista, playlist } = req.body;
+exports.cupidoMusical = async (req, res) => {
+  const { artistas } = req.body;
+  const { usuario_id } = req.params;
 
   try {
-    const canciones = await knex("canciones").where("artista", "=", artista);
+    const canciones = await knex("canciones").whereIn("artista", artistas);
 
-    let playlistId = await knex("playlist")
-      .where({ nombre: playlist })
+    const playlistNombre = `Playlist Usuario ${usuario_id}`;
+
+    let playlist = await knex("listas_reproduccion")
+      .where({ nombre: playlistNombre, usuario_id })
       .select("id")
       .first();
 
-    if (!playlistId) {
-      const nuevaPlaylist = await knex("playlist").insert({ nombre: playlist });
-      playlistId = nuevaPlaylist[0];
+    if (!playlist) {
+      const nuevaPlaylist = await knex("listas_reproduccion").insert({
+        nombre: playlistNombre,
+        usuario_id,
+      });
+      playlist = nuevaPlaylist[0];
     }
 
     const cancionesPlaylist = canciones.map((cancion) => ({
-      playlist_id: playlistId.id,
+      lista_id: playlist.id,
       cancion_id: cancion.id,
     }));
 
-    console.log(cancionesPlaylist);
-
-    await knex("canciones_playlist").insert(cancionesPlaylist);
+    await knex("canciones_lista").insert(cancionesPlaylist);
 
     res.status(200).json({
-      message: `Canciones de ${artista} agregadas a la playlist ${playlist}`,
+      message: `Canciones de ${artistas.join(
+        ", "
+      )} agregadas a la lista de reproduccion del usuario ${usuario_id}`,
     });
   } catch (error) {
     res.status(400).json({ error: error.message });

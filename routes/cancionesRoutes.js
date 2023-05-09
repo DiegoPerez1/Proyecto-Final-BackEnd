@@ -5,8 +5,7 @@ const {
   mostrarCancionesId,
   registroUsuario,
   loginUsuario,
-  // crearPlaylist,
-  agregarCancionesDeArtistaAPlaylist,
+  cupidoMusical,
 } = require("../controllers/cancionesController");
 
 const routes = express.Router();
@@ -22,12 +21,11 @@ routes.get("/canciones/:id", runValidation, verifyToken, mostrarCancionesId);
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);
 
-/*routes.post("/playlists", runValidation, verifyToken, crearPlaylist);*/
 routes.post(
-  "/agregar-canciones",
+  "/cupido-musical/:usuario_id",
   runValidation,
   verifyToken,
-  agregarCancionesDeArtistaAPlaylist
+  cupidoMusical
 );
 
 module.exports = routes;
