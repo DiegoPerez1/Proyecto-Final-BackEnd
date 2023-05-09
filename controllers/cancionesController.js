@@ -47,7 +47,10 @@ exports.cupidoMusical = async (req, res) => {
   const { usuario_id } = req.params;
 
   try {
-    const canciones = await knex("canciones").whereIn("artista", artistas);
+    const canciones = await knex("canciones")
+      .join("artistas", "canciones.artista_id", "artistas.id")
+      .whereIn("artistas.nombre", artistas)
+      .select("canciones.id");
 
     const playlistNombre = `Playlist Usuario ${usuario_id}`;
 
