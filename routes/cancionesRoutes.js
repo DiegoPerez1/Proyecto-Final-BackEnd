@@ -6,6 +6,7 @@ const {
   registroUsuario,
   loginUsuario,
   cupidoMusical,
+  artistaNombre,
 } = require("../controllers/cancionesController");
 
 const routes = express.Router();
@@ -17,6 +18,12 @@ routes.get("/", saludo);
 
 routes.get("/canciones", runValidation, verifyToken, mostrarCanciones);
 routes.get("/canciones/:id", runValidation, verifyToken, mostrarCancionesId);
+routes.get(
+  "/artista/:nombreArtista",
+  runValidation,
+  verifyToken,
+  artistaNombre
+);
 
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);

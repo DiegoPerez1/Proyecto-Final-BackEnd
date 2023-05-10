@@ -84,6 +84,42 @@ exports.cupidoMusical = async (req, res) => {
   }
 };
 
+exports.listaActividad = async (req, res) => {
+  const actividadId = req.params.actividadId;
+
+  try {
+    const actividad = await knex("actividades")
+      .select("genero_principal", "nombre")
+      .where({ id: actividadId })
+      .first();
+    const generoPrincipal = actividad.genero_principal;
+
+    const canciones = await knex("canciones")
+      .where({ genero: generoPrincipal })
+      .select("id");
+
+    const nombreLista = `${
+      actividad.nombre
+    } ${new Date().toLocaleDateString()}`;
+    const nuevaLista = await knex("listas_reproduccion").insert({
+      nombre: nombreLista,
+      usuario_id: req.user.id,
+    });
+
+    const cancionesPlaylist = canciones.map((cancion) => ({
+      lista_id: nuevaLista[0],
+      cancion_id: cancion.id,
+    }));
+    await knex("canciones_lista").insert(cancionesPlaylist);
+
+    res.status(200).json({
+      message: `Se ha creado la lista de reproducción de la actividad "${actividad.nombre}" con éxito`,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 exports.registroUsuario = async (req, res) => {
   const { usuario, contraseña, email } = req.body;
   const salt = await bcrypt.genSalt(10);
@@ -139,5 +175,32 @@ exports.loginUsuario = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+exports.artistaNombre = async (req, res) => {
+  const nombreArtista = req.params.nombreArtista.toUpperCase();
+
+  try {
+    // Buscar el artista por su nombre
+    const artista = await knex("artistas")
+      .whereRaw("nombre ILIKE ?", [`%${nombreArtista}%`])
+      .select("id", "nombre", "pais")
+      .first();
+
+    if (!artista) {
+      return res.status(404).json({ message: "Artista no encontrado" });
+    }
+
+    // Buscar las canciones del artista
+    const canciones = await knex("canciones")
+      .where("artista_id", artista.id)
+      .select("id", "nombre", "duracion");
+
+    // Combinar la información del artista y sus canciones en un objeto
+    const resultado = { ...artista, canciones };
+    return res.status(200).json(resultado);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };

@@ -1,11 +1,11 @@
 const knex = require("knex")({
   client: "pg",
   connection: {
-    host: "localhost",
-    port: 5433,
-    user: "rodrigo",
+    host: "tuffi.db.elephantsql.com",
+    port: 5432,
+    user: "pugppbtn",
     password: process.env.DB_PASSWORD,
-    database: "audn",
+    database: "pugppbtn",
   },
 });
 
