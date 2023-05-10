@@ -183,23 +183,11 @@ exports.artistaNombre = async (req, res) => {
 
   try {
     // Buscar el artista por su nombre
-    const artista = await knex("artistas")
-      .whereRaw("nombre ILIKE ?", [`%${nombreArtista}%`])
-      .select("id", "nombre", "pais")
-      .first();
-
-    if (!artista) {
-      return res.status(404).json({ message: "Artista no encontrado" });
-    }
-
-    // Buscar las canciones del artista
     const canciones = await knex("canciones")
-      .where("artista_id", artista.id)
-      .select("id", "nombre", "duracion");
+      .whereRaw("artista ILIKE ?", [`%${nombreArtista}%`])
+      .select("id", "nombre", "duracion")
 
-    // Combinar la información del artista y sus canciones en un objeto
-    const resultado = { ...artista, canciones };
-    return res.status(200).json(resultado);
+    return res.status(200).json(canciones);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

@@ -21,7 +21,7 @@ routes.get("/canciones/:id", runValidation, verifyToken, mostrarCancionesId);
 routes.get(
   "/artista/:nombreArtista",
   runValidation,
-  verifyToken,
+/*   verifyToken, */
   artistaNombre
 );
 
