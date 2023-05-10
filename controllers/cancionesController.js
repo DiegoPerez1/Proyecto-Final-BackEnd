@@ -48,7 +48,7 @@ exports.cupidoMusical = async (req, res) => {
 
   try {
     const canciones = await knex("canciones")
-      .join("artistas", "canciones.artista_id", "artistas.id")
+      .join("artistas", "canciones.artista", "artistas.nombre")
       .whereIn("artistas.nombre", artistas)
       .select("canciones.id");
 
@@ -185,7 +185,7 @@ exports.artistaNombre = async (req, res) => {
     // Buscar el artista por su nombre
     const canciones = await knex("canciones")
       .whereRaw("artista ILIKE ?", [`%${nombreArtista}%`])
-      .select("id", "nombre", "duracion")
+      .select("id", "nombre", "duracion");
 
     return res.status(200).json(canciones);
   } catch (error) {
