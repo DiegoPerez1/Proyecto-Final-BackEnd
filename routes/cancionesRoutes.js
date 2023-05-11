@@ -7,6 +7,10 @@ const {
   loginUsuario,
   cupidoMusical,
   artistaNombre,
+  listaActividad,
+  listasDeReproduccionUsuario,
+  agregarArtistaTemporal,
+  crearListaReproduccion,
 } = require("../controllers/cancionesController");
 
 const routes = express.Router();
@@ -37,5 +41,27 @@ routes.get("/artistas", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+routes.post(
+  "/actividades/:actividadId/lista-reproduccion",
+  runValidation,
+  verifyToken,
+  listaActividad
+); // agrega la ruta listaActividad
+
+routes.get(
+  "/usuarios/:usuarioId/listas-reproduccion",
+
+  listasDeReproduccionUsuario
+);
+
+routes.post(
+  "/temp/artistas",
+  runValidation,
+  verifyToken,
+  agregarArtistaTemporal
+);
+
+routes.post("/crear-lista", runValidation, verifyToken, crearListaReproduccion);
 
 module.exports = routes;
