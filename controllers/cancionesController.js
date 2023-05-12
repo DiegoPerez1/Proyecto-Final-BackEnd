@@ -44,7 +44,7 @@ exports.mostrarCancionesId = async (req, res) => {
 
 exports.cupidoMusical = async (req, res) => {
   const { artistas } = req.body;
-  const { usuario_id } = req.params;
+  const usuario_id = req.user.usuario;
 
   try {
     const canciones = await knex("canciones")
@@ -190,7 +190,6 @@ exports.artistaNombre = async (req, res) => {
   const nombreArtista = req.params.nombreArtista.toUpperCase();
 
   try {
-    // Buscar el artista por su nombre
     const canciones = await knex("canciones")
       .whereRaw("artista ILIKE ?", [`%${nombreArtista}%`])
       .select("id", "nombre", "duracion");
@@ -209,97 +208,6 @@ exports.listasDeReproduccionUsuario = async (req, res) => {
       .where({ usuario_id: usuarioId });
     console.log(listas);
     res.status(200).json(listas);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-exports.agregarArtistaTemporal = async (req, res) => {
-  const { artista } = req.body;
-  const userId = req.params.userId;
-
-  try {
-    let listaTemporal = await knex("lista_temporal")
-      .where({ usuario_id: userId })
-      .first();
-    console.log(`SELECT query: ${listaTemporal.toString()}`);
-
-    if (!listaTemporal) {
-      listaTemporal = await knex("lista_temporal").insert({
-        usuario_id: userId,
-        artistas: [],
-      });
-      listaTemporal = await knex("lista_temporal")
-        .where({ id: listaTemporal[0] })
-        .first();
-    }
-
-    const canciones = await knex("canciones").where("artista", artista);
-
-    listaTemporal.artistas.push(artista);
-
-    canciones.forEach((cancion) => {
-      listaTemporal.canciones.push(cancion.id);
-    });
-
-    await knex("lista_temporal").where({ id: listaTemporal.id }).update({
-      artistas: listaTemporal.artistas,
-      canciones: listaTemporal.canciones,
-    });
-
-    res.status(200).json({
-      message: "Artista y sus canciones agregados a la lista temporal",
-    });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-exports.crearListaReproduccion = async (req, res) => {
-  const userId = req.userId;
-
-  try {
-    const listaTemporal = await knex("lista_temporal")
-      .where({ usuario_id: userId })
-      .first();
-
-    if (!listaTemporal || listaTemporal.artistas.length === 0) {
-      return res.status(400).json({
-        error:
-          "No se han seleccionado artistas para crear la lista de reproducción",
-      });
-    }
-
-    const canciones = await knex("canciones")
-      .whereIn("artista", listaTemporal.artistas)
-      .select("id");
-
-    const playlistNombre = `Playlist Usuario ${userId}`;
-    let playlist = await knex("listas_reproduccion")
-      .where({ nombre: playlistNombre, usuario_id: userId })
-      .select("id")
-      .first();
-
-    if (!playlist) {
-      const nuevaPlaylist = await knex("listas_reproduccion").insert({
-        nombre: playlistNombre,
-        usuario_id: userId,
-      });
-      playlist = nuevaPlaylist[0];
-    }
-
-    const cancionesPlaylist = canciones.map((cancion) => ({
-      lista_id: playlist.id,
-      cancion_id: cancion.id,
-    }));
-
-    await knex("canciones_lista").insert(cancionesPlaylist);
-
-    await knex("lista_temporal").where({ usuario_id: userId }).del();
-
-    res.status(200).json({
-      message: `Lista de reproducción creada con éxito para el usuario ${userId}`,
-    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

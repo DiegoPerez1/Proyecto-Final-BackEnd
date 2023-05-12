@@ -1,3 +1,4 @@
+const knex = require("../config/knexfile");
 const express = require("express");
 const {
   saludo,
@@ -8,9 +9,6 @@ const {
   cupidoMusical,
   artistaNombre,
   listaActividad,
-  listasDeReproduccionUsuario,
-  agregarArtistaTemporal,
-  crearListaReproduccion,
 } = require("../controllers/cancionesController");
 
 const routes = express.Router();
@@ -31,7 +29,7 @@ routes.get(
 
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);
-routes.post("/cupidoMusical/:usuario_id", cupidoMusical);
+routes.post("/cupidoMusical", verifyToken, cupidoMusical);
 
 routes.get("/artistas", async (req, res) => {
   try {
@@ -47,21 +45,16 @@ routes.post(
   runValidation,
   verifyToken,
   listaActividad
-); // agrega la ruta listaActividad
-
-routes.get(
-  "/usuarios/:usuarioId/listas-reproduccion",
-
-  listasDeReproduccionUsuario
 );
 
-routes.post(
-  "/temp/artistas",
-  runValidation,
-  verifyToken,
-  agregarArtistaTemporal
-);
-
-routes.post("/crear-lista", runValidation, verifyToken, crearListaReproduccion);
+routes.get("/api/usuario", (req, res) => {
+  const usuarioId = req.session.usuarioId;
+  if (usuarioId) {
+    const usuario = obtenerUsuarioPorId(usuarioId);
+    res.json({ nombre: usuario.nombre });
+  } else {
+    res.status(401).json({ message: "El usuario no está logueado" });
+  }
+});
 
 module.exports = routes;
