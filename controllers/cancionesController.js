@@ -28,6 +28,14 @@ exports.mostrarCancionesId = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+exports.mostrarArtistas = async (req, res) => {
+  try {
+    const artistas = await knex.select('nombre', 'imagen').from('artistas');
+    res.status(200).json(artistas);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
 /*exports.crearPlaylist = async (req, res) => {
   const { nombre } = req.body;
@@ -44,14 +52,14 @@ exports.mostrarCancionesId = async (req, res) => {
 
 exports.cupidoMusical = async (req, res) => {
   const { artistas } = req.body;
-  const { usuario_id } = req.params;
+  const  usuario_id  = req.user.usuario;
 
   try {
     const canciones = await knex("canciones")
       .whereIn("artista", artistas)
       .select("id");
 
-    const playlistNombre = `Playlist Usuario ${usuario_id}`;
+    const playlistNombre = `Cupido Musical de ${usuario_id}`;
 
     let playlist = await knex("listas_reproduccion")
       .where({ nombre: playlistNombre, usuario_id: usuario_id })

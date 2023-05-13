@@ -1,3 +1,4 @@
+const knex = require("../config/knexfile");
 const express = require("express");
 const {
   saludo,
@@ -11,6 +12,7 @@ const {
   listasDeReproduccionUsuario,
   agregarArtistaTemporal,
   crearListaReproduccion,
+  mostrarArtistas,
 } = require("../controllers/cancionesController");
 
 const routes = express.Router();
@@ -31,16 +33,10 @@ routes.get(
 
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);
-routes.post("/cupidoMusical/:usuario_id", cupidoMusical);
+routes.post("/cupidoMusical",verifyToken, cupidoMusical);
 
-routes.get("/artistas", async (req, res) => {
-  try {
-    const artistas = await knex("artistas").select("nombre");
-    res.status(200).json(artistas);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+routes.get("/artistas", mostrarArtistas);
+
 
 routes.post(
   "/actividades/:actividadId/lista-reproduccion",
@@ -65,3 +61,4 @@ routes.post(
 routes.post("/crear-lista", runValidation, verifyToken, crearListaReproduccion);
 
 module.exports = routes;
+
