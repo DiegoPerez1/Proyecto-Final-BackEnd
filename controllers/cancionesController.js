@@ -86,7 +86,7 @@ exports.cancionesCupido = async (req, res) => {
   try {
     const cancionesCupido = await knex("canciones")
       .join("canciones_lista", "canciones_lista.cancion_id", "canciones.id")
-      .select("canciones_lista.lista_id", "canciones.id")
+      .select("*")
       .where("canciones_lista.lista_id", playlistId);
 
     res.status(200).json({ canciones: cancionesCupido });
