@@ -35,7 +35,7 @@ routes.get(
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);
 routes.post("/cupidoMusical",verifyToken, cupidoMusical);
-routes.get("/api/playlist", verifyToken, cancionesCupido);
+routes.get("/playlist/:playlistId/cancionesCupido",/*  verifyToken, */ cancionesCupido);
 routes.get("/artistas", mostrarArtistas);
 
 
