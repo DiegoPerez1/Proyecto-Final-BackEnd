@@ -9,13 +9,11 @@ const {
   cupidoMusical,
   artistaNombre,
   listaActividad,
-<<<<<<< HEAD
   listasDeReproduccionUsuario,
   agregarArtistaTemporal,
   crearListaReproduccion,
   mostrarArtistas,
-=======
->>>>>>> 25cabb9e763789359508d36b1171b9568ab33774
+  cancionesCupido,
 } = require("../controllers/cancionesController");
 
 const routes = express.Router();
@@ -36,13 +34,9 @@ routes.get(
 
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);
-<<<<<<< HEAD
 routes.post("/cupidoMusical",verifyToken, cupidoMusical);
-
+routes.get("/api/playlist", verifyToken, cancionesCupido);
 routes.get("/artistas", mostrarArtistas);
-=======
-routes.post("/cupidoMusical", verifyToken, cupidoMusical);
->>>>>>> 25cabb9e763789359508d36b1171b9568ab33774
 
 
 routes.post(
@@ -64,3 +58,39 @@ routes.get("/api/usuario", (req, res) => {
 
 module.exports = routes;
 
+/* try {
+  const canciones = await knex("canciones")
+    .whereIn("artista", artistas)
+    .select("id");
+
+  const playlistNombre = `Cupido Musical de ${usuario_id}`;
+
+  let playlist = await knex("listas_reproduccion")
+    .where({ nombre: playlistNombre, usuario_id: usuario_id })
+    .select("id")
+    .first();
+
+  if (!playlist) {
+    const nuevaPlaylist = await knex("listas_reproduccion").insert({
+      nombre: playlistNombre,
+      usuario_id: usuario_id,
+    });
+    playlist = nuevaPlaylist[0];
+  }
+
+  const cancionesPlaylist = canciones.map((cancion) => ({
+    lista_id: playlist.id,
+    cancion_id: cancion.id,
+  }));
+
+  await knex("canciones_lista").insert(cancionesPlaylist);
+
+  res.status(200).json({
+    message: `Canciones de ${artistas.join(
+      ", "
+    )} agregadas a la lista de reproduccion del usuario ${usuario_id}`,
+  });
+} catch (error) {
+  res.status(400).json({ error: error.message });
+}
+}; */
