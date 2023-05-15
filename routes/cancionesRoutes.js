@@ -3,17 +3,15 @@ const express = require("express");
 const {
   saludo,
   mostrarCanciones,
-  mostrarCancionesId,
+  mostrarCancionesYGenero,
   registroUsuario,
   loginUsuario,
   cupidoMusical,
   artistaNombre,
-  listaActividad,
-  listasDeReproduccionUsuario,
-  agregarArtistaTemporal,
-  crearListaReproduccion,
+  obtenerActividades,
   mostrarArtistas,
   cancionesCupido,
+  crearListaActividades,
 } = require("../controllers/cancionesController");
 
 const routes = express.Router();
@@ -24,7 +22,8 @@ const { verifyToken } = require("../middlewares/auth/auth");
 routes.get("/", saludo);
 
 routes.get("/canciones", runValidation, verifyToken, mostrarCanciones);
-routes.get("/canciones/:id", runValidation, verifyToken, mostrarCancionesId);
+routes.get("/cancionesGenero", mostrarCancionesYGenero);
+
 routes.get(
   "/artista/:nombreArtista",
   runValidation,
@@ -34,19 +33,15 @@ routes.get(
 
 routes.post("/registro", runValidation, registroUsuario);
 routes.post("/login", runValidation, loginUsuario);
-routes.post("/cupidoMusical",verifyToken, cupidoMusical);
-routes.get("/api/playlist", verifyToken, cancionesCupido);
+routes.post("/cupidoMusical", verifyToken, cupidoMusical);
+routes.get(
+  "/playlist/:playlistId/cancionesCupido",
+
+  cancionesCupido
+);
 routes.get("/artistas", mostrarArtistas);
 
-
-routes.post(
-  "/actividades/:actividadId/lista-reproduccion",
-  runValidation,
-  verifyToken,
-  listaActividad
-);
-
-routes.get("/api/usuario", (req, res) => {
+routes.get("/usuario", (req, res) => {
   const usuarioId = req.session.usuarioId;
   if (usuarioId) {
     const usuario = obtenerUsuarioPorId(usuarioId);
@@ -56,41 +51,22 @@ routes.get("/api/usuario", (req, res) => {
   }
 });
 
-module.exports = routes;
+routes.get("/actividades", obtenerActividades);
 
-/* try {
-  const canciones = await knex("canciones")
-    .whereIn("artista", artistas)
-    .select("id");
-
-  const playlistNombre = `Cupido Musical de ${usuario_id}`;
-
-  let playlist = await knex("listas_reproduccion")
-    .where({ nombre: playlistNombre, usuario_id: usuario_id })
-    .select("id")
-    .first();
-
-  if (!playlist) {
-    const nuevaPlaylist = await knex("listas_reproduccion").insert({
-      nombre: playlistNombre,
-      usuario_id: usuario_id,
-    });
-    playlist = nuevaPlaylist[0];
+routes.get("/generos", async (req, res) => {
+  try {
+    const actividadId = req.query.actividad_id;
+    const generos = await knex("generos")
+      .select("genero", "actividad_id")
+      .where("actividad_id", actividadId)
+      .distinct("genero");
+    res.json(generos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener los géneros" });
   }
+});
 
-  const cancionesPlaylist = canciones.map((cancion) => ({
-    lista_id: playlist.id,
-    cancion_id: cancion.id,
-  }));
+routes.get("/prueba", crearListaActividades);
 
-  await knex("canciones_lista").insert(cancionesPlaylist);
-
-  res.status(200).json({
-    message: `Canciones de ${artistas.join(
-      ", "
-    )} agregadas a la lista de reproduccion del usuario ${usuario_id}`,
-  });
-} catch (error) {
-  res.status(400).json({ error: error.message });
-}
-}; */
+module.exports = routes;
